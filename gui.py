@@ -36,10 +36,12 @@ class App(tk.Tk):
         self.buttonConvert.pack_forget()
         self.loginButton.pack_forget()
         self.registerButton.pack_forget()
+        self.logoutButton.pack_forget()
 
     def button_convert_clicked(self):
         self.registerButton.pack_forget()
         self.loginButton.pack_forget()
+        self.logoutButton.pack_forget()
         self.mileEntry = ttk.Entry(self, text="Enter miles here")
         self.kiloLabel = ttk.Label(self, text="Enter miles")
         self.convertButton = ttk.Button(self, text="Convert")
@@ -104,16 +106,19 @@ class App(tk.Tk):
         self.loginConfirm.pack(side=tk.TOP)
         self.username.insert(0, "Username")
         self.password.insert(0, "Password")
+        self.loginB = ttk.Button(text="Back")
+        self.loginB["command"] = self.loginBack
+        self.loginB.pack()
 
 
     def loginAttempt(self):
-        if self.loggedIn == True:
-            showinfo(message="You are already logged in!")
-        else:
-            self.usernameTry = self.username.get()
-            self.passwordTry = self.password.get()
+        self.usernameTry = self.username.get()
+        self.passwordTry = self.password.get()
+        try:
             for line in open("guiData.txt","r").readlines():
                 login_info = line.split()
+                if len(login_info) == 0:
+                    continue
                 if self.usernameTry == login_info[0] and self.passwordTry == login_info[1]:
                     self.loggedIn = True
                     self.loggedInTo = self.usernameTry
@@ -122,8 +127,18 @@ class App(tk.Tk):
                 self.loginConfirm.pack_forget()
                 self.username.pack_forget()
                 self.password.pack_forget()
+                self.loginB.pack_forget()
                 self.startGUI()
-                
+        except FileNotFoundError:
+            showinfo(message="No data file found (looking for 'guiData.txt')")
+
+    def loginBack(self):
+        self.username.pack_forget()
+        self.password.pack_forget()
+        self.loginConfirm.pack_forget()
+        self.loginB.pack_forget()
+
+        self.startGUI_NL()
 
     def register(self):
         self.registerButton.pack_forget()
@@ -137,19 +152,49 @@ class App(tk.Tk):
         self.registerConfirm.pack(side=tk.TOP)
         self.username.insert(0, "Username")
         self.password.insert(0, "Password")
+        self.registerB = ttk.Button(text="Back")
+        self.registerB["command"] = self.registerBack
+        self.registerB.pack()
+
+    def registerBack(self):
+        self.username.pack_forget()
+        self.password.pack_forget()
+        self.registerConfirm.pack_forget()
+        self.registerB.pack_forget()
+
+        self.startGUI_NL()
         
     def registerAttempt(self):
         self.usernameTest = 0
         self.usernameTaken = True
         registerUser = self.username.get()
         registerPass = self.password.get()
-        for line in open("guiData.txt","r").readlines():
-            self.registerTry = line.split()
-            if registerUser == self.registerTry[0]:
-                self.usernameTest = self.usernameTest + 1
+        try:
+            for line in open("guiData.txt","r").readlines():
+                self.registerTry = line.split()
+                if len(self.registerTry) == 0:
+                    continue
+                if registerUser == self.registerTry[0]:
+                    self.usernameTest = self.usernameTest + 1
+                else:
+                    pass
+            if self.usernameTest == 0:
+                file = open("guiData.txt", "a")
+                file.write(registerUser)
+                file.write(" ")
+                file.write(registerPass)
+                file.write("\n")
+                file.close()
+                showinfo(message="Username " + registerUser + " registered.")
+                self.loggedIn = True
+                self.loggedInTo = registerUser
             else:
-                pass
-        if self.usernameTest == 0:
+                showinfo(message="Username taken.")
+        except FileNotFoundError:
+            with open("guiData.txt", "w") as file:
+                file.write("\n")
+            for line in open("guiData.txt","r").readlines():
+                self.registerTry = line.split()
             file = open("guiData.txt", "a")
             file.write(registerUser)
             file.write(" ")
@@ -159,8 +204,13 @@ class App(tk.Tk):
             showinfo(message="Username " + registerUser + " registered.")
             self.loggedIn = True
             self.loggedInTo = registerUser
-        else:
-            showinfo(message="Username taken.")
+            self.username.pack_forget()
+            self.password.pack_forget()
+            self.registerConfirm.pack_forget()
+            self.registerBack.pack_forget()
+            self.startGUI()
+            
+            
 
     def startGUI(self):
         self.buttonText = ttk.Button(self, text="Open Text Editor")
