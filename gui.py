@@ -15,7 +15,11 @@ class App(tk.Tk):
         self.label = ttk.Label(self, text="A testing app")
         self.label.pack(side=tk.TOP)
 
+        self.protectedNames()
         self.startGUI_NL()
+    
+    def protectedNames(self):
+        blacklistNames = ["Admin", "admin", "user", "User", "Guest", "guest", "Username"]
 
     def button_clicked(self):
         self.text = tk.Text(self)
@@ -168,7 +172,9 @@ class App(tk.Tk):
         self.usernameTest = 0
         self.usernameTaken = True
         registerUser = self.username.get()
+        registerUser.replace(" ", "")
         registerPass = self.password.get()
+        registerPass.replace(" ", "")
         try:
             for line in open("guiData.txt","r").readlines():
                 self.registerTry = line.split()
