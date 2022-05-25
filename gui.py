@@ -213,7 +213,7 @@ class App(tk.Tk):
             self.username.pack_forget()
             self.password.pack_forget()
             self.registerConfirm.pack_forget()
-            self.registerBack.pack_forget()
+            self.registerB.pack_forget()
             self.startGUI()
             
             
