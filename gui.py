@@ -1,11 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showinfo
+import ctypes, sys
 
 
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
+
 
         self.loggedIn = False
 
@@ -19,7 +21,22 @@ class App(tk.Tk):
         self.startGUI_NL()
     
     def protectedNames(self):
-        blacklistNames = ["Admin", "admin", "user", "User", "Guest", "guest", "Username"]
+        self.blacklistNames = ["admin", "user", "guest", "username"]
+
+    def isAnAdmin(self):
+        check = self.loggedInTo.lower()
+        self.protectedNames()
+        self.count = 0
+        for i in range(0, len(self.blacklistNames), 1):
+            blacklistCheck = self.blacklistNames[i]
+            blacklistCheck = blacklistCheck.lower()
+            if check == blacklistCheck:
+                return True
+            else:
+                self.count = self.count + 1
+        if self.count == len(self.blacklistNames):
+            return False
+
 
     def button_clicked(self):
         self.text = tk.Text(self)
@@ -172,9 +189,20 @@ class App(tk.Tk):
         self.usernameTest = 0
         self.usernameTaken = True
         registerUser = self.username.get()
-        registerUser.replace(" ", "")
+        self.spaceCheck = registerUser
+        registerUser = registerUser.replace(" ", "")
+        registerUser = registerUser.replace(".", "")
+        registerUser = registerUser.replace("\\", "")
+        if self.spaceCheck != registerUser:
+            showinfo("Spaces are not allowed, they have been removed.")
         registerPass = self.password.get()
-        registerPass.replace(" ", "")
+        self.spaceCheck = registerPass
+        registerPass = registerPass.replace(" ", "")
+        registerPass = registerPass.replace(".", "")
+        registerPass = registerPass.replace("\\", "")
+        if self.spaceCheck != registerPass:
+            showinfo("Spaces are not allowed, they have been removed.")
+        self.spaceCheck = ""
         try:
             for line in open("guiData.txt","r").readlines():
                 self.registerTry = line.split()
@@ -185,15 +213,29 @@ class App(tk.Tk):
                 else:
                     pass
             if self.usernameTest == 0:
-                file = open("guiData.txt", "a")
-                file.write(registerUser)
-                file.write(" ")
-                file.write(registerPass)
-                file.write("\n")
-                file.close()
-                showinfo(message="Username " + registerUser + " registered.")
-                self.loggedIn = True
-                self.loggedInTo = registerUser
+                self.protectedNames()
+                for i in range(0, len(self.blacklistNames), 1):
+                    if registerUser.lower() == self.blacklistNames[i]:
+                        self.usernameTest = True
+                        i = len(self.blacklistNames) + 1
+                if self.usernameTest == True:
+                    showinfo(message="Username blocked")
+                else:
+                    file = open("guiData.txt", "a")
+                    file.write(registerUser)
+                    file.write(" ")
+                    file.write(registerPass)
+                    file.write("\n")
+                    file.close()
+                    showinfo(message="Username " + registerUser + " registered.")
+                    self.loggedIn = True
+                    self.loggedInTo = registerUser
+                    self.loggedInTo = registerUser
+                    self.username.pack_forget()
+                    self.password.pack_forget()
+                    self.registerConfirm.pack_forget()
+                    self.registerB.pack_forget()
+                    self.startGUI()
             else:
                 showinfo(message="Username taken.")
         except FileNotFoundError:
@@ -216,7 +258,11 @@ class App(tk.Tk):
             self.registerB.pack_forget()
             self.startGUI()
             
-            
+    def adminFullCheck(self):
+        if self.isAnAdmin():
+            showinfo(message="Yes they are an admin")
+        else:
+            showinfo(message="Nope")
 
     def startGUI(self):
         self.buttonText = ttk.Button(self, text="Open Text Editor")
@@ -242,11 +288,19 @@ class App(tk.Tk):
         self.buttonText.pack_forget()
         self.buttonConvert.pack_forget()
         self.logoutButton.pack_forget()
-        self.loggedInTo = "Guest"
+        self.loggedInTo = ""
         self.startGUI_NL()
         showinfo(message="You have been successfully logged out.")
         
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+if is_admin():
+    if __name__ == "__main__":
+        app = App()
+        app.mainloop()
+else:
+    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
