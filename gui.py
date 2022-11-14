@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showinfo
-import json
 import os.path
 
 
@@ -47,8 +46,8 @@ class App(tk.Tk):
         self.registerButton.pack_forget()
         self.logoutButton.pack_forget()#Removes all components from main screen
 
-        self.text = tk.Text(self)
-        self.text.pack(padx=10, pady=5)
+        self.textbox = tk.Text(self)
+        self.textbox.pack(padx=10, pady=5)
 
         self.exitButton = ttk.Button(self, text="Exit me!")
         self.exitButton["command"] = self.exitButtonPressed
@@ -71,7 +70,8 @@ class App(tk.Tk):
         self.loginButton.pack_forget()
         self.logoutButton.pack_forget()
         self.buttonText.pack_forget()
-        self.buttonConvert.pack_forget()
+        self.label.pack_forget()
+        self.buttonConvert.pack_forget()#Removes all components
 
         self.mileEntry = ttk.Entry(self, text="Enter miles here")
         self.kiloLabel = ttk.Label(self, text="Enter miles")#Instructions
@@ -95,7 +95,9 @@ class App(tk.Tk):
         self.kiloLabel.grid_forget()
         self.convertButton.grid_forget()
         self.buttonConvertBack.grid_forget()
-        self.label.grid_forget()
+        self.label.grid_forget()#Removes all components
+
+        
 
         self.startGUI()
 
@@ -103,32 +105,32 @@ class App(tk.Tk):
         exit()
 
     def buttonClearPressed(self):#Clear text editor
-        self.text.delete("1.0", tk.END)
+        self.textbox.delete("1.0", tk.END)
 
     def buttonTitle_clicked(self):#Set window title to text editor's contents
-        self.title(self.text.get("1.0", tk.END))
-        self.text.delete("1.0", tk.END)
+        self.title(self.textbox.get("1.0", tk.END))
+        self.textbox.delete("1.0", tk.END)
 
     def buttonReset_clicked(self):#Exit to start
-        self.text.pack_forget()
+        self.textbox.pack_forget()
         self.exitButton.pack_forget()
         self.buttonClear.pack_forget()
         self.buttonTitle.pack_forget()
-        self.buttonReset.pack_forget()
+        self.buttonReset.pack_forget()#Removes all components
 
         self.startGUI()
         
     def mile_to_kilo(self):#Mile to km function
         try:
             self.mile = self.mileEntry.get()
-            self.kilo = float(self.mile) * 1.6
+            self.kilo = float(self.mile) * 1.60934#Formula for miles to km
             self.kiloLabel.configure(text=str(self.kilo) + " Kilometers")
         except ValueError:
             self.kiloLabel.configure(text="Please enter a valid number")
 
     def login(self):#Login screen
         self.registerButton.pack_forget()
-        self.loginButton.pack_forget()
+        self.loginButton.pack_forget()#Removes all components
 
         self.loginConfirm = ttk.Button(self, text="Login")
         self.loginConfirm["command"] = self.loginAttempt#Login button
@@ -150,11 +152,9 @@ class App(tk.Tk):
     def loginAttempt(self):#Login function
         self.usernameTry = self.username.get()
         self.passwordTry = self.password.get()#Get text fields
-        print(self.usernameTry + " " + self.passwordTry)
         try:
             for line in open(self.completeName, "r").readlines():#Open file guiData.txt
                 login_info = line.split()
-                print(login_info)
                 if len(login_info) == 0:
                     continue
                 if self.usernameTry == login_info[0] and self.passwordTry == login_info[1]:#Checks if username and passwords match
@@ -166,7 +166,7 @@ class App(tk.Tk):
                 self.loginConfirm.pack_forget()
                 self.username.pack_forget()
                 self.password.pack_forget()
-                self.loginB.pack_forget()
+                self.loginB.pack_forget()#Removes all components
 
                 self.startGUI()
             else:
@@ -178,13 +178,13 @@ class App(tk.Tk):
         self.username.pack_forget()
         self.password.pack_forget()
         self.loginConfirm.pack_forget()
-        self.loginB.pack_forget()
+        self.loginB.pack_forget()#Removes all components
 
         self.startGUI_NL()
 
     def register(self):#Register screen
         self.registerButton.pack_forget()
-        self.loginButton.pack_forget()
+        self.loginButton.pack_forget()#Removes all components
 
         self.registerConfirm = ttk.Button(self, text="Register")
         self.registerConfirm["command"] = self.registerAttempt#Register button
@@ -208,21 +208,20 @@ class App(tk.Tk):
         self.username.pack_forget()
         self.password.pack_forget()
         self.registerConfirm.pack_forget()
-        self.registerB.pack_forget()
+        self.registerB.pack_forget()#Removes all components
 
         self.startGUI_NL()
         
     def registerAttempt(self):#Register function
         self.usernameTest = 0
 
-        registerUser = self.username.get()#Get username field
-        registerPass = self.password.get()#Get password field
+        registerUser = self.username.get()#Get username/password fields
+        registerPass = self.password.get()
 
-        registerUser = self.removeBadChar(registerUser)
+        registerUser = self.removeBadChar(registerUser)#Remove bad characters
         registerPass = self.removeBadChar(registerPass)
 
         if registerPass == "" or registerUser == "":
-            print("nothing in them")
             return False
         
         try:
@@ -289,9 +288,9 @@ class App(tk.Tk):
         self.logoutButton = ttk.Button(self, text="Logout")#Log out button
         self.logoutButton["command"] = self.logout
 
-        self.logoutButton.pack(side=tk.TOP)
         self.buttonText.pack(side=tk.TOP)
         self.buttonConvert.pack(side=tk.TOP)
+        self.logoutButton.pack(side=tk.TOP)
 
     def startGUI_NL(self):#Opens logged out start
         self.loginButton = ttk.Button(self, text="Login")#Login button
