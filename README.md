@@ -1,5 +1,5 @@
 # Python scripts
-# 'argparseTestSQLite.py' instructions for use
+# 'pythonCLITest.py' instructions for use
 At least one of these arguments are required: --help (-h), --login (-l), --guest (-g) or --register (-r).
 
 --login and --register require 2 arguments.

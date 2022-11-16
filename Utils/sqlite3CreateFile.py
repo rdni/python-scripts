@@ -1,4 +1,4 @@
-#Required dependency for argparseTestSQLite
+#Required dependency for pythonCLITest
 #Requires sqlite3
 
 import sqlite3
