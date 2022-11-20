@@ -3,11 +3,7 @@
 
 import sqlite3
 
-def createFile(loc, endswithdb):
-    if endswithdb:
-        pass
-    else:
-        loc = loc + ".db"
+def createFile(loc):
     conn = sqlite3.connect(loc)
     conn.execute("""CREATE TABLE "GUIDATA" (
 	"ID"	INT NOT NULL,

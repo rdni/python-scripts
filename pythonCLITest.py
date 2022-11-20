@@ -4,6 +4,7 @@
 import argparse
 import sqlite3
 from Utils import sqlite3CreateFile as c
+from Utils import CLITestMain as a
 
 parser = argparse.ArgumentParser()#Parser
 
@@ -23,6 +24,11 @@ def removeBadChar(x):#Sanitises inputs
         x = x.replace("(", "")
         x = x.replace(")", "")
         return x
+
+if args.file.endswith(".db"):
+    pass
+else:
+    args.file = args.file + ".db"
 
 try:
     conn = sqlite3.connect(args.file)#Makes a connection to db file
@@ -45,10 +51,17 @@ try:
         else:
             cursor = conn.execute("""SELECT MAX(ID) from GUIDATA""")
             id = cursor.fetchone()
-            id = int(id[0]) + 1
-            conn.execute("""INSERT INTO GUIDATA (USERNAME, PASSWORD, ID) VALUES (?,?,?)""", (username, password, id))
-            conn.commit()
-            print("Username registered")
+            if id[0] is None:
+                id = 1
+                conn.execute("""INSERT INTO GUIDATA (USERNAME, PASSWORD, ID) VALUES (?,?,?)""", (username, password, id))
+                conn.commit()
+                print("Username registered")
+            else:
+                id = int(id[0]) + 1
+                conn.execute("""INSERT INTO GUIDATA (USERNAME, PASSWORD, ID) VALUES (?,?,?)""", (username, password, id))
+                conn.commit()
+                print("Username registered")
+                a.startUp(username)
 
     
     elif args.login is not None:
@@ -69,17 +82,18 @@ try:
             if str(rows[id][0]) == username:
                 id = i
                 print("Correct username and password")
+                a.startUp(username)
             else:
                 print("Incorrect password")
         else:
             print("No match")
     elif args.guest:
         print("Logging in as a guest")
+        a.startUp("Guest")
     else:
         print("Argument required: --login, --guest or --register.\nUse -h for help.")
 except Exception as e:
     print(e)
     createdbFile = input("Would you like to make a DB file at '" + args.file + "'? (Y/n): ")
     if createdbFile == "Y":
-        endswithdb = args.file.endswith(".db")
-        c.createFile(args.file, endswithdb)
+        c.createFile(args.file)

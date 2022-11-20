@@ -1,3 +1,5 @@
 
 Utils/__pycache__/sqlite3CreateFile.cpython-310.pyc
 *.db
+logfile.txt
+*.pyc
