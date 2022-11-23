@@ -1,3 +1,8 @@
+"""If a function is called "x0y1" it means that it is in the 
+position x = 0 and y = 1
+
+"""
+
 class mainMaze():
     def __init__(self):
         self.x = 0
@@ -14,10 +19,10 @@ class mainMaze():
 
     def askDirection(self, actions, directions):
         self.actionDone = (False,)
-        self.actions = actions
-        self.directions = directions
+        self.actions = self.makeList(actions)
+        self.directions = self.makeList(directions)
         print(f"Your position is X: {self.x} Y: {self.y}")
-        print(f"You can {self.makeList(self.actions)} {self.makeList(self.directions)}")
+        print(f"You can {self.actions} {self.directions}")
         self.action = input("What action? ")
         self.action = self.action.split()
         if len(self.action) == 1:
@@ -58,7 +63,7 @@ class mainMaze():
             return f"{self.listMaker[0]}, {self.listMaker[1]} or {self.listMaker[2]}"
 
     
-    def bossRoom(self, question, answer):
+    def bossRoom(self, question, answer):  # Boss room definition
         self.question = question
         self.answer = answer
         self.monstDead = False
