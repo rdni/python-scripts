@@ -146,7 +146,7 @@ class mainMaze():
             print("Error")
             self.x0y0()
 
-    def x3y3(self):
+    def x3y3(self):#Win room
         print("You win! Well done.")
 
 #Find nothing section
@@ -201,7 +201,7 @@ class mainMaze():
     def x3y2(self):
         print("You find nothing")
         self.actions = ["go"]
-        self.directions = ["down", "right", "up"] #Actions and directions
+        self.directions = ["left", "down"] #Actions and directions
         self.actionDone = self.askDirection(self.actions, self.directions)
         if self.actionDone[0] == "go": #Checks for action
             if self.actionDone[1] == "left":
@@ -278,7 +278,7 @@ loops? """
             self.actions = ["go"]
         else:
             self.actions = ["pickup", "go"]
-        self.directions = ["down", "left", "right"] #Actions and directions
+        self.directions = ["up", "left", "right"] #Actions and directions
         self.actionDone = self.askDirection(self.actions, self.directions)
         if self.actionDone[0] == "go": #Checks for action
             if self.actionDone[1] == "left":
@@ -287,6 +287,7 @@ loops? """
                 self.up()
                 self.x2y1()
             elif self.actionDone[1] == "right":
+                self.right()
                 self.x3y2()
             else:
                 print("Not possible")
@@ -392,6 +393,5 @@ loops? """
     def x1y2(self):
         print("You find a dead end.You turn around.") 
         self.x2y2()
-
 
 startMaze = mainMaze(logger)
