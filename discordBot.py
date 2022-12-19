@@ -83,13 +83,13 @@ async def calculatemulti(ctx: interactions.CommandContext, tmulti: str,\
         interactions.Option(
             name="amountofitem",
             description="How many you got",
-            type=interactions.OptionType.INTEGER,
+            type=interactions.OptionType.STRING,
             required=True,
         ),
         interactions.Option(
             name="numberofkeys",
             description="How many keys you opened",
-            type=interactions.OptionType.INTEGER,
+            type=interactions.OptionType.STRING,
             required=True,
         ),
     ],
@@ -101,12 +101,14 @@ async def calculateodds(ctx: interactions.CommandContext, oddsof: str,\
         continueOn = True
     elif oddsof == "compressing boots complex":
         percentChance = 0.025
-        emptyDrops = numberofkeys - amountofitem
+        emptyDrops = int(numberofkeys) - int(amountofitem)
         probability = m.pow(percentChance, float(amountofitem)) / m.pow(100 - percentChance, float(emptyDrops))
+        if Fraction.from_float(probability).limit_denominator(1000000000) == 0:
+            oddsLow = True
         sendMessage = f"Sorry {oddsof} is not implemented yet. This will in \
 the future consider extra prestige keys and daily keys, that would lead to \
 more potential compressing boots. Also for testing purposes that would be \
-{Fraction(probability)}"
+{Fraction.from_float(probability)}"
         continueOn = False
     else:
         sendMessage = f"Sorry {oddsof} is not a valid item added yet."
