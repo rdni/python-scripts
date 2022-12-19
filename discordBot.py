@@ -6,21 +6,6 @@ from fractions import Fraction
 bot = interactions.Client(token="YOUR_TOKEN_ID")
 
 @bot.command(
-    name="say",
-    description="This will say what you entered.",
-    options = [
-        interactions.Option(
-            name="text",
-            description="What you want to say",
-            type=interactions.OptionType.STRING,
-            required=True,
-        ),
-    ],
-)
-async def say(ctx: interactions.CommandContext, text: str):
-    await ctx.send(text)
-
-@bot.command(
     name="credits",
     description="Credits for the bot.",
 )
@@ -38,27 +23,6 @@ async def creditsPressed(ctx: interactions.ComponentContext):
 was helped by Hollow#4029. You can access the source code of this bot at \
 https://github.com/redninja9854/python-scripts/blob/main/discordBot.py")
 
-@bot.command(
-    name="add",
-    description="This will add what you entered.",
-    options = [
-        interactions.Option(
-            name="num1",
-            description="First number",
-            type=interactions.OptionType.INTEGER,
-            required=True,
-        ),
-        interactions.Option(
-            name="num2",
-            description="What you want to say",
-            type=interactions.OptionType.INTEGER,
-            required=True,
-        ),
-    ],
-)
-async def add(ctx: interactions.CommandContext, num1: int, num2: int):
-    await ctx.send(f"{str(num1)} + {str(num2)} = {str(num1 + num2)}")
-    
 @bot.command(
     name="calculatemulti",
     description="This will do calculations for multiplier in Newclicker.",
