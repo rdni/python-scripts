@@ -1,4 +1,6 @@
 import interactions
+import math as m
+from fractions import Fraction
 
 bot = interactions.Client(token="YOUR_TOKEN_ID")
 
@@ -45,26 +47,26 @@ async def add(ctx: interactions.CommandContext, num1: int, num2: int):
         interactions.Option(
             name="tmulti",
             description="Temporary multiplier",
-            type=interactions.OptionType.INTEGER,
+            type=interactions.OptionType.STRING,
             required=True,
         ),
         interactions.Option(
             name="pmulti",
             description="Permanent multiplier",
-            type=interactions.OptionType.INTEGER,
+            type=interactions.OptionType.STRING,
             required=True,
         ),
         interactions.Option(
             name="rmulti",
             description="Rebirth multiplier",
-            type=interactions.OptionType.INTEGER,
+            type=interactions.OptionType.STRING,
             required=True,
         ),
     ],
 )
-async def calculatemulti(ctx: interactions.CommandContext, tmulti: int,\
- pmulti: int, rmulti: int):
-    calcuate = (tmulti + pmulti) * (rmulti + 1)
+async def calculatemulti(ctx: interactions.CommandContext, tmulti: str,\
+ pmulti: str, rmulti: str):
+    calcuate = (float(tmulti) + float(pmulti)) * (float(rmulti) + 1)
     await ctx.send(f"The overall multiplier of a player with tmulti: {tmulti},\
  pmulti: {pmulti} and rmulti: {rmulti} is {calcuate}.")
 
@@ -98,9 +100,13 @@ async def calculateodds(ctx: interactions.CommandContext, oddsof: str,\
         percentChance = 2.5
         continueOn = True
     elif oddsof == "compressing boots complex":
+        percentChance = 0.025
+        emptyDrops = numberofkeys - amountofitem
+        probability = m.pow(percentChance, float(amountofitem)) / m.pow(100 - percentChance, float(emptyDrops))
         sendMessage = f"Sorry {oddsof} is not implemented yet. This will in \
 the future consider extra prestige keys and daily keys, that would lead to \
-more potential compressing boots"
+more potential compressing boots. Also for testing purposes that would be \
+{Fraction(probability)}"
         continueOn = False
     else:
         sendMessage = f"Sorry {oddsof} is not a valid item added yet."
