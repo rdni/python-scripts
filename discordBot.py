@@ -3,7 +3,6 @@ import math as m
 from fractions import Fraction
 
 
-
 bot = interactions.Client(token="YOUR_TOKEN_ID")
 
 @bot.command(
@@ -20,6 +19,24 @@ bot = interactions.Client(token="YOUR_TOKEN_ID")
 )
 async def say(ctx: interactions.CommandContext, text: str):
     await ctx.send(text)
+
+@bot.command(
+    name="credits",
+    description="Credits for the bot.",
+)
+async def credits(ctx: interactions.CommandContext):
+    creditsButton = interactions.Button(
+        style=interactions.ButtonStyle.PRIMARY,
+        label="Credits!",
+        custom_id="creditsPressed",
+    )
+    await ctx.send(components=creditsButton)
+
+@bot.component("creditsPressed")
+async def creditsPressed(ctx: interactions.ComponentContext):
+    await ctx.send(f"This bot was coded by redninja9854#2889 in Python, who \
+was helped by Hollow#4029. You can access the source code of this bot at \
+https://github.com/redninja9854/python-scripts/blob/main/discordBot.py")
 
 @bot.command(
     name="add",
@@ -147,8 +164,27 @@ compressing boots it is the amount of compressing boots"
     description="This shuts down the bot.",
 )
 async def killbot(ctx: interactions.CommandContext):
-    await ctx.send(f"Shutting down the bot")
-    print("Bot shutdown by command")
+    killButtonConfirm = interactions.Button(
+        style=interactions.ButtonStyle.PRIMARY,
+        label="Confirm",
+        custom_id="killButtonConfirm",
+    )
+    killButtonCancel = interactions.Button(
+        style=interactions.ButtonStyle.DANGER,
+        label="Cancel",
+        custom_id="killButtonCancel",
+    )
+    await ctx.send("Are you sure you want to end the program?", \
+components=[killButtonConfirm, killButtonCancel])
+
+@bot.component("killButtonConfirm")
+async def killButtonConfirm(ctx: interactions.ComponentContext):
+    print("Bot shutdown by command.")
+    await ctx.send("Bot shutting down")
     exit()
+
+@bot.component("killButtonCancel")
+async def killButtonCancel(ctx: interactions.ComponentContext):
+    await ctx.send("Bot not shutting down")
 
 bot.start()
