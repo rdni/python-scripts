@@ -1,6 +1,5 @@
 import interactions
 import math as m
-import logging
 from fractions import Fraction
 
 
@@ -84,20 +83,20 @@ async def calculatemulti(ctx: interactions.CommandContext, tmulti: str,\
             required=True,
         ),
         interactions.Option(
-            name="numberofkeys",
-            description="How many keys you opened",
+            name="inputnumber",
+            description="The amount of thing you want to calculate.",
             type=interactions.OptionType.STRING,
             required=True,
         ),
     ],
 )
 async def calculateodds(ctx: interactions.CommandContext, oddsof: str,\
- numberofkeys: int):
-    logging.basicConfig(filename="logfile.txt", level=logging.INFO)
-    logger1 = logging.getLogger("my-app")
+ inputnumber: int):
     if oddsof == "compressing boots":
-        percentChance = 2.5
-        continueOn = True
+        keysneeded = int(inputnumber) * 40
+        sendMessage = f"To get {inputnumber}, you would on average need \
+{keysneeded}."
+
     elif oddsof == "compressing boots complex":
         extrapkey = 0
         emptydrops = 0
@@ -108,7 +107,7 @@ async def calculateodds(ctx: interactions.CommandContext, oddsof: str,\
         bootdropstotal = 0
         pkeydropfromrkey = 0
         pkeydropfromrkeytotal = 0
-        for i in range(int(numberofkeys)):
+        for i in range(int(inputnumber)):
             extrapkey += 0.06
             emptydrops += 0.75
             bootdrops += 0.025
@@ -132,27 +131,24 @@ async def calculateodds(ctx: interactions.CommandContext, oddsof: str,\
         sendMessage = f"On average you would get {bootdropstotal} compressing \
 boots. This would come from {extrapkeytotal} extra prestige keys and \
 {rkeydropstotal} drops from random key, of which {pkeydropfromrkeytotal} would\
- give a prestige key."
-        continueOn = False
+ give a prestige key. There would be {emptydrops}.\nHidden values: \
+bootdrops = {bootdrops}, extrapkey = {extrapkey}, rkeydrops = {rkeydrops} and \
+pkeydropfromrkey = {pkeydropfromrkey}"
+    elif oddsof == "help":
+        sendMessage = "In compressing boots complex it is keys, but in \
+compressing boots it is the amount of compressing boots"
     else:
         sendMessage = f"Sorry {oddsof} is not a valid item added yet."
-        continueOn = False
-
-#This code has been temporarily removed, might be put back later
-    #if continueOn:
-        #calculate = (amountofitem / numberofkeys) * 100
-        #if calculate == percentChance:
-            #sendMessage = f"You got exactly the hypothetical odds of \
-#{percentChance} (you got {(amountofitem / numberofkeys) * 100})!"
-        #elif calculate < percentChance:
-            #sendMessage = f"You got less than the hypothetical odds of \
-#{percentChance} (you got {(amountofitem / numberofkeys) * 100})!"
-        #elif calculate > percentChance:
-            #sendMessage = f"You got more than the hypothetical odds of \
-#{percentChance} (you got {(amountofitem / numberofkeys) * 100})!"
-        #else:
-            #sendMessage = f"Something broke lol"
 
     await ctx.send(sendMessage)
+
+@bot.command(
+    name="killbot",
+    description="This shuts down the bot.",
+)
+async def killbot(ctx: interactions.CommandContext):
+    await ctx.send(f"Shutting down the bot")
+    print("Bot shutdown by command")
+    exit()
 
 bot.start()
