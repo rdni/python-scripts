@@ -1,9 +1,43 @@
 import interactions
 import math as m
+import time
 from fractions import Fraction
+from discord.ext import commands
 
 
 bot = interactions.Client(token="YOUR_TOKEN_ID")
+
+@bot.command(
+    name="help",
+    description="Credits for the bot.",
+    options = [
+        interactions.Option(
+            name="page",
+            description="Page of help you want to access",
+            type=interactions.OptionType.INTEGER,
+            required=False,
+        ),
+    ]
+)
+async def help(ctx: interactions.CommandContext, page = 1):
+    if page == 1:
+        await ctx.send(f"Page {page} of help. In the command /calculateodds, \
+there are currently 2 options for the command. You can do \"compressing \
+boots\", and \"compressing boots complex\". Compressing boots takes the \
+amount of compressing boots you want, and compressing boots complex takes the\
+amount of keys you have. Next page is page {page}, and is about areas")
+    elif page == 2:
+        await ctx.send(f"Page {page} of help. The current areas are: Spawn, \
+Plains, Village, Outpost, Dark Forest, Aquarium, Desert, Mesa, Mineshaft, \
+Deep Mine, Snow Zone, Absolute Zero, and the 2 zones with prestige \
+requirements: Deep Sea (prestige 60) and Strange City (prestige 75). An area \
+that is currently in development is the Nether. There is also an area \
+accessible only by the command /lounge, which contains NPC versions of beta \
+testers.")
+    else:
+        await ctx.send(f"Sorry, page {page} does not exist yet.")
+
+
 
 @bot.command(
     name="credits",
@@ -73,12 +107,13 @@ async def calculatemulti(ctx: interactions.CommandContext, tmulti: str,\
 )
 async def calculateodds(ctx: interactions.CommandContext, oddsof: str,\
  inputnumber: int):
-    if oddsof == "compressing boots":
+    if oddsof.lower() == "compressing boots":
         keysneeded = int(inputnumber) * 40
         sendMessage = f"To get {inputnumber}, you would on average need \
 {keysneeded}."
+        ephemeral = False
 
-    elif oddsof == "compressing boots complex":
+    elif oddsof.lower() == "compressing boots complex":
         extrapkey = 0
         emptydrops = 0
         bootdrops = 0
@@ -115,18 +150,22 @@ boots. This would come from {extrapkeytotal} extra prestige keys and \
  give a prestige key. There would be {emptydrops}.\nHidden values: \
 bootdrops = {bootdrops}, extrapkey = {extrapkey}, rkeydrops = {rkeydrops} and \
 pkeydropfromrkey = {pkeydropfromrkey}"
-    elif oddsof == "help":
+        ephemeral = False
+    elif oddsof.lower() == "help":
         sendMessage = "In compressing boots complex it is keys, but in \
 compressing boots it is the amount of compressing boots"
+        ephemeral = False
     else:
         sendMessage = f"Sorry {oddsof} is not a valid item added yet."
+        ephemeral = True
 
-    await ctx.send(sendMessage)
+    await ctx.send(sendMessage, ephemeral=ephemeral)
 
 @bot.command(
     name="killbot",
     description="This shuts down the bot.",
 )
+@commands.has_permissions(administrator=True)
 async def killbot(ctx: interactions.CommandContext):
     killButtonConfirm = interactions.Button(
         style=interactions.ButtonStyle.PRIMARY,
@@ -139,16 +178,16 @@ async def killbot(ctx: interactions.CommandContext):
         custom_id="killButtonCancel",
     )
     await ctx.send("Are you sure you want to end the program?", \
-components=[killButtonConfirm, killButtonCancel])
+components=[killButtonConfirm, killButtonCancel], ephemeral=True)
 
 @bot.component("killButtonConfirm")
 async def killButtonConfirm(ctx: interactions.ComponentContext):
     print("Bot shutdown by command.")
-    await ctx.send("Bot shutting down")
+    await ctx.send("Bot shutting down", ephemeral=True)
     exit()
 
 @bot.component("killButtonCancel")
 async def killButtonCancel(ctx: interactions.ComponentContext):
-    await ctx.send("Bot not shutting down")
+    await ctx.send("Bot not shutting down", ephemeral=True)
 
 bot.start()
