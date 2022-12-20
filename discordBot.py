@@ -5,6 +5,7 @@ from fractions import Fraction
 from discord.ext import commands
 
 
+
 bot = interactions.Client(token="YOUR_TOKEN_ID")
 
 @bot.command(
@@ -147,9 +148,7 @@ async def calculateodds(ctx: interactions.CommandContext, oddsof: str,\
         sendMessage = f"On average you would get {bootdropstotal} compressing \
 boots. This would come from {extrapkeytotal} extra prestige keys and \
 {rkeydropstotal} drops from random key, of which {pkeydropfromrkeytotal} would\
- give a prestige key. There would be {emptydrops}.\nHidden values: \
-bootdrops = {bootdrops}, extrapkey = {extrapkey}, rkeydrops = {rkeydrops} and \
-pkeydropfromrkey = {pkeydropfromrkey}"
+ give a prestige key. There would be {emptydrops} empty drops."
         ephemeral = False
     elif oddsof.lower() == "help":
         sendMessage = "In compressing boots complex it is keys, but in \
@@ -207,26 +206,59 @@ async def clicksforitem(ctx: interactions.CommandContext, fortune: int, itemtype
         await ctx.send(f"{itemnumber} {itemtype} items would take \
 {m.ceil(clicksNeeded)} clicks with {fortune} fortune")
 
-
+@bot.command(
+    name="fortune",
+    description="Fortune given on average.",
+    options = [
+        interactions.Option(
+            name="fortunetokens",
+            description="How much fortune you have",
+            type=interactions.OptionType.INTEGER,
+            required=True,
+        ),
+        interactions.Option(
+            name="megatokens",
+            description="The type of thing you want to calculate.",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+    ],
+)
+async def fortune(ctx: interactions.CommandContext, fortunetokens: int, megatokens: int):
+    totalfortune = int(fortunetokens) * 2 + int(megatokens) * 7
+    await ctx.send(f"You would get {totalfortune} fortune, on average, from \
+{fortunetokens} fortune tokens and {megatokens} mega fortune tokens.")
 
 @bot.command(
     name="killbot",
     description="This shuts down the bot.",
+    options = [
+        interactions.Option(
+            name="password",
+            description="How much fortune you have",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+    ]
 )
 @commands.has_permissions(administrator=True)
-async def killbot(ctx: interactions.CommandContext):
-    killButtonConfirm = interactions.Button(
-        style=interactions.ButtonStyle.PRIMARY,
-        label="Confirm",
-        custom_id="killButtonConfirm",
-    )
-    killButtonCancel = interactions.Button(
-        style=interactions.ButtonStyle.DANGER,
-        label="Cancel",
-        custom_id="killButtonCancel",
-    )
-    await ctx.send("Are you sure you want to end the program?", \
+async def killbot(ctx: interactions.CommandContext, password: str):
+    correctPassword = "P4SSW0RD"
+    if correctPassword == password:
+        killButtonConfirm = interactions.Button(
+            style=interactions.ButtonStyle.PRIMARY,
+            label="Confirm",
+            custom_id="killButtonConfirm",
+        )
+        killButtonCancel = interactions.Button(
+            style=interactions.ButtonStyle.DANGER,
+            label="Cancel",
+            custom_id="killButtonCancel",
+        )
+        await ctx.send("Are you sure you want to end the program?", \
 components=[killButtonConfirm, killButtonCancel], ephemeral=True)
+    else:
+        await ctx.send("Incorrect password", ephemeral=True)
 
 @bot.component("killButtonConfirm")
 async def killButtonConfirm(ctx: interactions.ComponentContext):
