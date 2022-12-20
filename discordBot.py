@@ -150,6 +150,24 @@ boots. This would come from {extrapkeytotal} extra prestige keys and \
 {rkeydropstotal} drops from random key, of which {pkeydropfromrkeytotal} would\
  give a prestige key. There would be {emptydrops} empty drops."
         ephemeral = False
+    elif oddsof.lower() == "fortune":
+        ftoken = 0
+        mtoken = 0
+        ftokentotal = 0
+        mtokentotal = 0
+        for i in range(int(inputnumber)):
+            mtoken += 0.075
+            ftoken += 0.15
+            if mtoken >= 1:
+                mtoken -= 1
+                mtokentotal += 1
+            if ftoken >= 1:
+                ftoken -= 1
+                ftokentotal += 3
+        totalfortune = int(ftokentotal) * 2 + int(mtokentotal) * 7
+        sendMessage = f"{inputnumber} keys would give you around {totalfortune} \
+fortune"
+        ephemeral = False
     elif oddsof.lower() == "help":
         sendMessage = "In compressing boots complex it is keys, but in \
 compressing boots it is the amount of compressing boots"
