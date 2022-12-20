@@ -25,7 +25,7 @@ async def help(ctx: interactions.CommandContext, page = 1):
 there are currently 2 options for the command. You can do \"compressing \
 boots\", and \"compressing boots complex\". Compressing boots takes the \
 amount of compressing boots you want, and compressing boots complex takes the\
-amount of keys you have. Next page is page {page}, and is about areas")
+amount of keys you have. Next page is page {page + 1}, and is about areas")
     elif page == 2:
         await ctx.send(f"Page {page} of help. The current areas are: Spawn, \
 Plains, Village, Outpost, Dark Forest, Aquarium, Desert, Mesa, Mineshaft, \
@@ -160,6 +160,54 @@ compressing boots it is the amount of compressing boots"
         ephemeral = True
 
     await ctx.send(sendMessage, ephemeral=ephemeral)
+
+@bot.command(
+    name="clicksforitem",
+    description="How many clicks are required for an item.",
+    options = [
+        interactions.Option(
+            name="fortune",
+            description="How much fortune you have",
+            type=interactions.OptionType.INTEGER,
+            required=True,
+        ),
+        interactions.Option(
+            name="itemtype",
+            description="The type of thing you want to calculate.",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+        interactions.Option(
+            name="itemnumber",
+            description="The amount of thing you want to calculate.",
+            type=interactions.OptionType.INTEGER,
+            required=False,
+        ),
+    ],
+)
+async def clicksforitem(ctx: interactions.CommandContext, fortune: int, itemtype: str, itemnumber = 1):
+    continueOn = True
+    if itemtype.lower() == "regular":
+        itemsNeeded = 1
+    elif itemtype.lower() == "compressed":
+        itemsNeeded = 64
+    elif itemtype.lower() == "super compressed":
+        itemsNeeded = 4096
+    elif itemtype.lower() == "ultra compressed":
+        itemsNeeded = 262144
+    elif itemtype.lower() == "mega compressed":
+        itemsNeeded = 16777216
+    else:
+        await ctx.send(f"Sorry, {itemtype} is invalid.")
+        continueOn = False
+    if continueOn:
+        clicksNeeded = float((itemsNeeded * itemnumber)) / float(fortune)
+        if clicksNeeded < 1:
+            clicksNeeded = 1
+        await ctx.send(f"{itemnumber} {itemtype} items would take \
+{m.ceil(clicksNeeded)} clicks with {fortune} fortune")
+
+
 
 @bot.command(
     name="killbot",
