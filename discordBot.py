@@ -9,6 +9,15 @@ from discord.ext import commands
 bot = interactions.Client(token="YOUR_TOKEN_ID")
 
 @bot.command(
+    name="version",
+    description="Credits for the bot.",
+)
+async def version(ctx: interactions.CommandContext):
+    version = "0.1.1"
+    ctx.send(f"The current version of the bot is {version}, not yet publicly \
+released. Full release not yet anticipated for a while.")
+
+@bot.command(
     name="help",
     description="Credits for the bot.",
     options = [
@@ -26,7 +35,7 @@ async def help(ctx: interactions.CommandContext, page = 1):
 there are currently 2 options for the command. You can do \"compressing \
 boots\", and \"compressing boots complex\". Compressing boots takes the \
 amount of compressing boots you want, and compressing boots complex takes the\
-amount of keys you have. Next page is page {page + 1}, and is about areas")
+amount of keys you have. Next page is page {page + 1}, and is about areas.")
     elif page == 2:
         await ctx.send(f"Page {page} of help. The current areas are: Spawn, \
 Plains, Village, Outpost, Dark Forest, Aquarium, Desert, Mesa, Mineshaft, \
@@ -34,9 +43,34 @@ Deep Mine, Snow Zone, Absolute Zero, and the 2 zones with prestige \
 requirements: Deep Sea (prestige 60) and Strange City (prestige 75). An area \
 that is currently in development is the Nether. There is also an area \
 accessible only by the command /lounge, which contains NPC versions of beta \
-testers.")
+testers. Next page is page {page + 1}, and is about gear.")
+    elif page == 3:
+        await ctx.send(f"Page {page} of help. The current most expensive gear \
+in the game is ice knight, however the leggings and boots are not regarded as \
+the best. Snowy boots and Supreme IVs are considered better boots, with Snowy \
+boots giving speed 5 and +25% money, and Supreme IVs giving speed 6. There is \
+some disagreement about which is better. Zombie leggings give +75% money, \
+however give slowness 3, so at rebirth 7, with autoprestige and deep sea \
+key, it is recommended to use zombie leggings. Next page is page {page + 1}, \
+and is about rebirths")
+    elif page == 4:
+        await ctx.send(f"Page {page} of help. Rebirth tokens and 0.5x rebirth \
+multiplier are given, as a reward on rebirth. Rebirth multiplier is \
+considered good because it is multiplicative (see /calculatemulti to work out \
+your own multiplier), while rebirth tokens are considered good because they \
+can give unique items. It is best to first get autoprestige, to help get you \
+to prestige 60 (Deep sea is unlocked) faster. Then get the deep sea key, so \
+travel time is removed, and zombie leggings can be used more efficiently. \
+After that, if you want, you can get the soul talisman, but other than that, \
+just get bonus prestige vouchers.")
+    elif page == 5:
+        await sendMessage(ctx, "hello", True)
     else:
         await ctx.send(f"Sorry, page {page} does not exist yet.")
+
+async def sendMessage(ctx: interactions.CommandContext, message: str, ephemeral: bool, embeds = None):
+    await ctx.send(message, embeds=embeds, ephemeral=ephemeral)
+
 
 
 
@@ -150,9 +184,28 @@ boots. This would come from {extrapkeytotal} extra prestige keys and \
 {rkeydropstotal} drops from random key, of which {pkeydropfromrkeytotal} would\
  give a prestige key. There would be {emptydrops} empty drops."
         ephemeral = False
+    elif oddsof.lower() == "fortune":
+        ftoken = 0
+        mtoken = 0
+        ftokentotal = 0
+        mtokentotal = 0
+        for i in range(int(inputnumber)):
+            mtoken += 0.075
+            ftoken += 0.15
+            if mtoken >= 1:
+                mtoken -= 1
+                mtokentotal += 1
+            if ftoken >= 1:
+                ftoken -= 1
+                ftokentotal += 3
+        totalfortune = int(ftokentotal) * 2 + int(mtokentotal) * 7
+        sendMessage = f"{inputnumber} keys would give you around {totalfortune} \
+fortune"
+        ephemeral = False
     elif oddsof.lower() == "help":
-        sendMessage = "In compressing boots complex it is keys, but in \
-compressing boots it is the amount of compressing boots"
+        sendMessage = "In compressing boots complex you input amount of keys, \
+in compressing boots you input the amount of compressing boots and in \
+fortune you input amount of keys."
         ephemeral = False
     else:
         sendMessage = f"Sorry {oddsof} is not a valid item added yet."
@@ -230,12 +283,41 @@ async def fortune(ctx: interactions.CommandContext, fortunetokens: int, megatoke
 {fortunetokens} fortune tokens and {megatokens} mega fortune tokens.")
 
 @bot.command(
+    name="changelogadd",
+    description="This shuts down the bot.",
+    options = [
+        interactions.Option(
+            name="password",
+            description="Double checking its you",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+        interactions.Option(
+            name="changelogtext",
+            description="What should be entered to the changelog",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+    ]
+)
+@commands.has_permissions(administrator=True)
+async def changelogadd(ctx: interactions.CommandContext, password: str, changelogtext: str):
+    correctPassword = "P4SSW0RD"
+    if correctPassword == password:
+        sendto = await ctx.get_channel()
+        await sendto.send(f"Changelog entry: {changelogtext}")
+    else:
+        await ctx.send("Incorrect password", ephemeral=True)
+
+
+
+@bot.command(
     name="killbot",
     description="This shuts down the bot.",
     options = [
         interactions.Option(
             name="password",
-            description="How much fortune you have",
+            description="Double checking its you",
             type=interactions.OptionType.STRING,
             required=True,
         ),
