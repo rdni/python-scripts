@@ -30,20 +30,33 @@ released. Full release not yet anticipated for a while.")
     ]
 )
 async def help(ctx: interactions.CommandContext, page = 1):
+    nextPageButton = interactions.Button(
+        style=interactions.ButtonStyle.PRIMARY,
+        label="Next Page",
+        custom_id="nextPage",
+    )
+    previousPageButton = interactions.Button(
+        style=interactions.ButtonStyle.PRIMARY,
+        label="Previous Page",
+        custom_id="previousPage",
+    )
     if page == 1:
-        await ctx.send(f"Page {page} of help. In the command /calculateodds, \
-there are currently 2 options for the command. You can do \"compressing \
-boots\", and \"compressing boots complex\". Compressing boots takes the \
-amount of compressing boots you want, and compressing boots complex takes the\
-amount of keys you have. Next page is page {page + 1}, and is about areas.")
+        await ctx.send(f"Page {page} of help. There are 7 commands: /version, \
+/credits, /help, /calculatemulti, /calculateodds, /clicksforitem and /fortune.\
+ In the command /calculateodds, there are currently 3 options for the command.\
+ You can do \"compressing boots\", \"compressing boots complex\" and \
+\"fortune\". Compressing boots takes the amount of compressing boots you want,\
+ compressing boots complex takes theamount of keys you have, and fortune takes\
+ the amount of keys you have. Next page is page {page + 1}, and is about \
+areas.")
     elif page == 2:
         await ctx.send(f"Page {page} of help. The current areas are: Spawn, \
 Plains, Village, Outpost, Dark Forest, Aquarium, Desert, Mesa, Mineshaft, \
-Deep Mine, Snow Zone, Absolute Zero, and the 2 zones with prestige \
-requirements: Deep Sea (prestige 60) and Strange City (prestige 75). An area \
-that is currently in development is the Nether. There is also an area \
-accessible only by the command /lounge, which contains NPC versions of beta \
-testers. Next page is page {page + 1}, and is about gear.")
+Deep Mine, Snow Zone, Absolute Zero, and the 3 zones with prestige \
+requirements: Arena (prestige 30), Deep Sea (prestige 60) and Strange City \
+(prestige 75). An area that is currently in development is the Nether. There \
+is also an area accessible only by the command /lounge, which contains NPC \
+versions of beta testers. Next page is page {page + 1}, and is about gear.")
     elif page == 3:
         await ctx.send(f"Page {page} of help. The current most expensive gear \
 in the game is ice knight, however the leggings and boots are not regarded as \
@@ -62,9 +75,16 @@ can give unique items. It is best to first get autoprestige, to help get you \
 to prestige 60 (Deep sea is unlocked) faster. Then get the deep sea key, so \
 travel time is removed, and zombie leggings can be used more efficiently. \
 After that, if you want, you can get the soul talisman, but other than that, \
-just get bonus prestige vouchers.")
+just get bonus prestige vouchers. Next page is page {page + 1}, and is about \
+bugs.")
     elif page == 5:
-        await sendMessage(ctx, "hello", True)
+        await ctx.send(f"Page {page} of help. So far there have been very \
+small amount of game breaking bugs, but there is currently one unresolved one,\
+ that no-one seems to know how to fix: wiping of certain people's stats. This \
+has only been found to effect the players noahforse21, T_Crazy and txged. If \
+anybody knows a fix for data loss, similar to this, please contact Akenolein. \
+This bug causes variables from variables.cvs in Skript to disappear. An \
+attempted fix was implemtented, but it is still unknown if it worked.")
     else:
         await ctx.send(f"Sorry, page {page} does not exist yet.")
 
@@ -306,6 +326,7 @@ async def changelogadd(ctx: interactions.CommandContext, password: str, changelo
     if correctPassword == password:
         sendto = await ctx.get_channel()
         await sendto.send(f"Changelog entry: {changelogtext}")
+        await ctx.send("Command executed", ephemeral=True)
     else:
         await ctx.send("Incorrect password", ephemeral=True)
 
