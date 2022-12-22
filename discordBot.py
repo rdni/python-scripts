@@ -13,13 +13,15 @@ bot = interactions.Client(token="YOUR_TOKEN_ID")
     description="Credits for the bot.",
 )
 async def version(ctx: interactions.CommandContext):
-    version = "0.1.1"
-    ctx.send(f"The current version of the bot is {version}, not yet publicly \
-released. Full release not yet anticipated for a while.")
+    version = await getVersion()
+    await ctx.send(f"The current version of the bot is {version}.")
+
+async def getVersion():
+    return "public-0.1.4"
 
 @bot.command(
     name="help",
-    description="Credits for the bot.",
+    description="Help for the bot.",
     options = [
         interactions.Option(
             name="page",
@@ -30,16 +32,6 @@ released. Full release not yet anticipated for a while.")
     ]
 )
 async def help(ctx: interactions.CommandContext, page = 1):
-    nextPageButton = interactions.Button(
-        style=interactions.ButtonStyle.PRIMARY,
-        label="Next Page",
-        custom_id="nextPage",
-    )
-    previousPageButton = interactions.Button(
-        style=interactions.ButtonStyle.PRIMARY,
-        label="Previous Page",
-        custom_id="previousPage",
-    )
     if page == 1:
         await ctx.send(f"Page {page} of help. There are 7 commands: /version, \
 /credits, /help, /calculatemulti, /calculateodds, /clicksforitem and /fortune.\
@@ -305,6 +297,7 @@ async def fortune(ctx: interactions.CommandContext, fortunetokens: int, megatoke
 @bot.command(
     name="changelogadd",
     description="This shuts down the bot.",
+    default_member_permissions=interactions.Permissions.ADMINISTRATOR,
     options = [
         interactions.Option(
             name="password",
@@ -318,23 +311,35 @@ async def fortune(ctx: interactions.CommandContext, fortunetokens: int, megatoke
             type=interactions.OptionType.STRING,
             required=True,
         ),
+        interactions.Option(
+            name="discord",
+            description="True for if it is a bot changelog.",
+            type=interactions.OptionType.BOOLEAN,
+            required=False,
+        ),
     ]
 )
-@commands.has_permissions(administrator=True)
-async def changelogadd(ctx: interactions.CommandContext, password: str, changelogtext: str):
+async def changelogadd(ctx: interactions.CommandContext, password: str, changelogtext: str, discord=False):
     correctPassword = "P4SSW0RD"
     if correctPassword == password:
-        sendto = await ctx.get_channel()
-        await sendto.send(f"Changelog entry: {changelogtext}")
-        await ctx.send("Command executed", ephemeral=True)
+        if discord:
+            sendto = await ctx.get_channel()
+            version = await getVersion()
+            await sendto.send(f"Changelog entry (version '{version}' discord bot): {changelogtext}")
+            await ctx.send("Command executed", ephemeral=True)
+        else:
+            sendto = await ctx.get_channel()
+            await sendto.send(f"Changelog entry: {changelogtext}")
+            await ctx.send("Command executed", ephemeral=True)
     else:
-        await ctx.send("Incorrect password", ephemeral=True)
+            await ctx.send("Incorrect password", ephemeral=True)
 
 
 
 @bot.command(
     name="killbot",
     description="This shuts down the bot.",
+    default_member_permissions=interactions.Permissions.ADMINISTRATOR,
     options = [
         interactions.Option(
             name="password",
@@ -344,7 +349,6 @@ async def changelogadd(ctx: interactions.CommandContext, password: str, changelo
         ),
     ]
 )
-@commands.has_permissions(administrator=True)
 async def killbot(ctx: interactions.CommandContext, password: str):
     correctPassword = "P4SSW0RD"
     if correctPassword == password:
