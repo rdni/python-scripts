@@ -52,12 +52,9 @@ versions of beta testers. Next page is page {page + 1}, and is about gear.")
     elif page == 3:
         await ctx.send(f"Page {page} of help. The current most expensive gear \
 in the game is ice knight, however the leggings and boots are not regarded as \
-the best. Snowy boots and Supreme IVs are considered better boots, with Snowy \
-boots giving speed 5 and +25% money, and Supreme IVs giving speed 6. There is \
-some disagreement about which is better. Zombie leggings give +75% money, \
-however give slowness 3, so at rebirth 7, with autoprestige and deep sea \
-key, it is recommended to use zombie leggings. Next page is page {page + 1}, \
-and is about rebirths")
+the best. Supreme IVs are considered better boots, with Supreme IVs giving \
++0.03 speed. Zombie leggings give +75% money, so it is recommended to use zombie \
+leggings. Next page is page {page + 1}, and is about rebirths")
     elif page == 4:
         await ctx.send(f"Page {page} of help. Rebirth tokens and 0.5x rebirth \
 multiplier are given, as a reward on rebirth. Rebirth multiplier is \
