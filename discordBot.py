@@ -3,6 +3,7 @@ import math as m
 import time
 from fractions import Fraction
 from discord.ext import commands
+from interactions.utils.get import get
 
 
 
@@ -10,18 +11,59 @@ bot = interactions.Client(token="YOUR_TOKEN_ID")
 
 @bot.command(
     name="version",
-    description="Credits for the bot.",
+    description="Version of the bot.",
+    dm_permission=True,
 )
 async def version(ctx: interactions.CommandContext):
     version = await getVersion()
     await ctx.send(f"The current version of the bot is {version}.")
 
 async def getVersion():
-    return "public-0.1.4"
+    return "public-0.1.5"
+
+async def getPage(page: int):
+    if page == 1:
+        return [f"Page {page} of help. There are 7 commands: /version, \
+/credits, /help, /calculatemulti, /calculateodds, /clicksforitem and /fortune.\
+ In the command /calculateodds, there are currently 3 options for the command.\
+ You can do \"compressing boots\", \"compressing boots complex\" and \
+\"fortune\". Compressing boots takes the amount of compressing boots you want,\
+ compressing boots complex takes theamount of keys you have, and fortune takes\
+ the amount of keys you have. Next page is page {page + 1}, and is about \
+areas.", False]
+    elif page == 2:
+        return [f"Page {page} of help. The current areas are: Spawn, \
+Plains, Village, Outpost, Dark Forest, Aquarium, Desert, Mesa, Mineshaft, \
+Deep Mine, Snow Zone, Absolute Zero, and the 3 zones with prestige \
+requirements: Arena (prestige 30), Deep Sea (prestige 60) and Strange City \
+(prestige 75). An area that is currently in development is the Nether. There \
+is also an area accessible only by the command /lounge, which contains NPC \
+versions of beta testers. Next page is page {page + 1}, and is about \
+gear.", False]
+    elif page == 3:
+        return [f"Page {page} of help. The current most expensive gear \
+in the game is ice knight, however the leggings and boots are not regarded as \
+the best. Supreme IVs are considered better boots, with Supreme IVs giving \
++0.03 speed. Zombie leggings give +75% money, so it is recommended to use zombie \
+leggings. Next page is page {page + 1}, and is about rebirths", False]
+    elif page == 4:
+        return [f"Page {page} of help. Rebirth tokens and 0.5x rebirth \
+multiplier are given, as a reward on rebirth. Rebirth multiplier is \
+considered good because it is multiplicative (see /calculatemulti to work out \
+your own multiplier), while rebirth tokens are considered good because they \
+can give unique items. It is best to first get autoprestige, to help get you \
+to prestige 60 (Deep sea is unlocked) faster. Then get the deep sea key, so \
+travel time is removed, and zombie leggings can be used more efficiently. \
+After that, if you want, you can get the soul talisman, but other than that, \
+just get bonus prestige vouchers. Next page is page {page + 1}, and is about \
+bugs.", False]
+    else:
+        return [f"Sorry, page {page} does not exist yet.", False]
 
 @bot.command(
     name="help",
     description="Help for the bot.",
+    dm_permission=True,
     options = [
         interactions.Option(
             name="page",
@@ -32,50 +74,8 @@ async def getVersion():
     ]
 )
 async def help(ctx: interactions.CommandContext, page = 1):
-    if page == 1:
-        await ctx.send(f"Page {page} of help. There are 7 commands: /version, \
-/credits, /help, /calculatemulti, /calculateodds, /clicksforitem and /fortune.\
- In the command /calculateodds, there are currently 3 options for the command.\
- You can do \"compressing boots\", \"compressing boots complex\" and \
-\"fortune\". Compressing boots takes the amount of compressing boots you want,\
- compressing boots complex takes theamount of keys you have, and fortune takes\
- the amount of keys you have. Next page is page {page + 1}, and is about \
-areas.")
-    elif page == 2:
-        await ctx.send(f"Page {page} of help. The current areas are: Spawn, \
-Plains, Village, Outpost, Dark Forest, Aquarium, Desert, Mesa, Mineshaft, \
-Deep Mine, Snow Zone, Absolute Zero, and the 3 zones with prestige \
-requirements: Arena (prestige 30), Deep Sea (prestige 60) and Strange City \
-(prestige 75). An area that is currently in development is the Nether. There \
-is also an area accessible only by the command /lounge, which contains NPC \
-versions of beta testers. Next page is page {page + 1}, and is about gear.")
-    elif page == 3:
-        await ctx.send(f"Page {page} of help. The current most expensive gear \
-in the game is ice knight, however the leggings and boots are not regarded as \
-the best. Supreme IVs are considered better boots, with Supreme IVs giving \
-+0.03 speed. Zombie leggings give +75% money, so it is recommended to use zombie \
-leggings. Next page is page {page + 1}, and is about rebirths")
-    elif page == 4:
-        await ctx.send(f"Page {page} of help. Rebirth tokens and 0.5x rebirth \
-multiplier are given, as a reward on rebirth. Rebirth multiplier is \
-considered good because it is multiplicative (see /calculatemulti to work out \
-your own multiplier), while rebirth tokens are considered good because they \
-can give unique items. It is best to first get autoprestige, to help get you \
-to prestige 60 (Deep sea is unlocked) faster. Then get the deep sea key, so \
-travel time is removed, and zombie leggings can be used more efficiently. \
-After that, if you want, you can get the soul talisman, but other than that, \
-just get bonus prestige vouchers. Next page is page {page + 1}, and is about \
-bugs.")
-    elif page == 5:
-        await ctx.send(f"Page {page} of help. So far there have been very \
-small amount of game breaking bugs, but there is currently one unresolved one,\
- that no-one seems to know how to fix: wiping of certain people's stats. This \
-has only been found to effect the players noahforse21, T_Crazy and txged. If \
-anybody knows a fix for data loss, similar to this, please contact Akenolein. \
-This bug causes variables from variables.cvs in Skript to disappear. An \
-attempted fix was implemtented, but it is still unknown if it worked.")
-    else:
-        await ctx.send(f"Sorry, page {page} does not exist yet.")
+    sendMessage = await getPage(page)
+    await ctx.send(sendMessage[0], ephemeral=sendMessage[1])
 
 async def sendMessage(ctx: interactions.CommandContext, message: str, ephemeral: bool, embeds = None):
     await ctx.send(message, embeds=embeds, ephemeral=ephemeral)
@@ -86,6 +86,7 @@ async def sendMessage(ctx: interactions.CommandContext, message: str, ephemeral:
 @bot.command(
     name="credits",
     description="Credits for the bot.",
+    dm_permission=True,
 )
 async def credits(ctx: interactions.CommandContext):
     creditsButton = interactions.Button(
@@ -104,6 +105,7 @@ https://github.com/redninja9854/python-scripts/blob/main/discordBot.py")
 @bot.command(
     name="calculatemulti",
     description="This will do calculations for multiplier in Newclicker.",
+    dm_permission=True,
     options = [
         interactions.Option(
             name="tmulti",
@@ -134,6 +136,7 @@ async def calculatemulti(ctx: interactions.CommandContext, tmulti: str,\
 @bot.command(
     name="calculateodds",
     description="This finds the odds of things.",
+    dm_permission=True,
     options = [
         interactions.Option(
             name="oddsof",
@@ -225,6 +228,7 @@ fortune you input amount of keys."
 @bot.command(
     name="clicksforitem",
     description="How many clicks are required for an item.",
+    dm_permission=True,
     options = [
         interactions.Option(
             name="fortune",
@@ -271,6 +275,7 @@ async def clicksforitem(ctx: interactions.CommandContext, fortune: int, itemtype
 @bot.command(
     name="fortune",
     description="Fortune given on average.",
+    dm_permission=True,
     options = [
         interactions.Option(
             name="fortunetokens",
@@ -293,8 +298,9 @@ async def fortune(ctx: interactions.CommandContext, fortunetokens: int, megatoke
 
 @bot.command(
     name="changelogadd",
-    description="This shuts down the bot.",
+    description="This adds a changelog message.",
     default_member_permissions=interactions.Permissions.ADMINISTRATOR,
+    dm_permission=False,
     options = [
         interactions.Option(
             name="password",
@@ -322,21 +328,63 @@ async def changelogadd(ctx: interactions.CommandContext, password: str, changelo
         if discord:
             sendto = await ctx.get_channel()
             version = await getVersion()
-            await sendto.send(f"Changelog entry (version '{version}' discord bot): {changelogtext}")
             await ctx.send("Command executed", ephemeral=True)
+            await sendto.send(f"Changelog entry (version '{version}' discord bot): {changelogtext}")
         else:
             sendto = await ctx.get_channel()
-            await sendto.send(f"Changelog entry: {changelogtext}")
             await ctx.send("Command executed", ephemeral=True)
+            await sendto.send(f"Changelog entry: {changelogtext}")
     else:
             await ctx.send("Incorrect password", ephemeral=True)
 
-
+@bot.command(
+    name="changelogedit",
+    description="This edits a changelog message.",
+    default_member_permissions=interactions.Permissions.ADMINISTRATOR,
+    dm_permission=False,
+    options = [
+        interactions.Option(
+            name="channelid",
+            description="Channel the message is in",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+        interactions.Option(
+            name="messageid",
+            description="Message to edit",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+        interactions.Option(
+            name="changelogtext",
+            description="What should be entered to the changelog",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+        interactions.Option(
+            name="discord",
+            description="True for if it is a bot changelog.",
+            type=interactions.OptionType.BOOLEAN,
+            required=False,
+        ),
+    ]
+)
+async def changelogedit(ctx: interactions.CommandContext, channelid: str, messageid: str, changelogtext: str, discord=False):
+    if discord:
+        version = await getVersion()
+        message = await get(bot, interactions.message, object_id=messageid)
+        await ctx.send("Command executed", ephemeral=True)
+        await message.edit(channelid, messageid, f"Changelog entry (version '{version}' discord bot): {changelogtext}")
+    else:
+        sendto = await ctx.get_channel()
+        await ctx.send("Command executed", ephemeral=True)
+        await sendto.send(f"Changelog entry: {changelogtext}")
 
 @bot.command(
     name="killbot",
     description="This shuts down the bot.",
     default_member_permissions=interactions.Permissions.ADMINISTRATOR,
+    dm_permission=False,
     options = [
         interactions.Option(
             name="password",
