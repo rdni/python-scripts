@@ -1,0 +1,4 @@
+create if a greater int b
+Literal message "a is greater than b"
+Literal else:
+Literal message "b is greater than a"
