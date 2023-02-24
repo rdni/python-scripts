@@ -1,8 +1,9 @@
 import time
 
 class Main():
-    def __init__(self, username):
+    def __init__(self, username, id):
         self.username = username
+        self.id = id
         print("You have launched the program.")
         time.sleep(1)
         print("You are logged in as " + self.username)
@@ -16,5 +17,5 @@ class Main():
         
 
 
-def startUp(username):
-    app = Main(username)
+def startUp(username, id):
+    app = Main(username, id)

@@ -32,7 +32,7 @@ else:
 
 try:
     conn = sqlite3.connect(args.file)#Makes a connection to db file
-    if args.register is not None:#Checks if someone is making an account
+    if args.register is not None and args.login is None: #Checks if someone is making an account
         usernameTest = 0
 
         username = removeBadChar(args.register[0])
@@ -56,12 +56,13 @@ try:
                 conn.execute("""INSERT INTO GUIDATA (USERNAME, PASSWORD, ID) VALUES (?,?,?)""", (username, password, id))
                 conn.commit()
                 print("Username registered")
+                a.startUp(username, id)
             else:
                 id = int(id[0]) + 1
                 conn.execute("""INSERT INTO GUIDATA (USERNAME, PASSWORD, ID) VALUES (?,?,?)""", (username, password, id))
                 conn.commit()
                 print("Username registered")
-                a.startUp(username)
+                a.startUp(username, id)
 
     
     elif args.login is not None:
@@ -82,14 +83,14 @@ try:
             if str(rows[id][0]) == username:
                 id = i
                 print("Correct username and password")
-                a.startUp(username)
+                a.startUp(username, id)
             else:
                 print("Incorrect password")
         else:
             print("No match")
     elif args.guest:
         print("Logging in as a guest")
-        a.startUp("Guest")
+        a.startUp("Guest", None)
     else:
         print("Argument required: --login, --guest or --register.\nUse -h for help.")
 except Exception as e:
