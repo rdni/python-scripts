@@ -1,0 +1,4 @@
+if {a} is greater {b}:
+message "a is greater than b"
+else:
+message "b is greater than a"
