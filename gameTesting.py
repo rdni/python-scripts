@@ -5,9 +5,6 @@ class Map():
         self.boxPos = [3, 2]
         self.xAmount = int((len(map[0]) - 2) / 2)
         self.yAmount = int((len(map) - 1) / 2)
-        self.objects = ['P', 'X']
-        self.objectPos = [1, 1,
-                          3, 2]
         
     def printMap(self, map):
         for i in map:
@@ -81,7 +78,7 @@ class Map():
                 self.boxPos = [self.boxPos[0], self.boxPos[1] + 1]
                 return "Moved!"
             elif direction == "d":
-                if self.boxPos[1] - 1 > self.yAmount:
+                if self.boxPos[1] - 1 < 1:
                     print(self.boxPos[1] - 1,  " ", self.yAmount)
                     return "Error"
                 self.editMap(self.map, self.boxPos[0], self.boxPos[1], ' ')
@@ -89,8 +86,8 @@ class Map():
                 self.boxPos = [self.boxPos[0], self.boxPos[1] - 1]
                 return "Moved!"
             elif direction == "l":
-                if self.boxPos[0] - 1 > 1:
-                    print(self.boxPos[0] - 1,  " ", self.xAmount)
+                if self.boxPos[0] - 1 < 1:
+                    print(self.boxPos[0] - 1,  " ")
                     return "Error"
                 self.editMap(self.map, self.boxPos[0], self.boxPos[1], ' ')
                 self.editMap(self.map, self.boxPos[0] - 1, self.boxPos[1], 'X')
@@ -123,8 +120,8 @@ def makeMap(x, y):
     print(returnVal)
     return returnVal
     
-m = Map(makeMap(5, 3))
-m.updateScreen(m.objects, m.objectPos)
+m = Map(makeMap(10, 5))
+m.updateScreen(['P', 'X'], [m.playerPos[0], m.playerPos[1], m.boxPos[0], m.boxPos[1]])
 while True:
     print(m.move("player", input()))
     m.printMap(m.map)
