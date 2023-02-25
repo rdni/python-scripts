@@ -1,7 +1,7 @@
 import re
 
-filePath = "D:\\Code\\python-scripts\\test.sk"
-filePathRead = "D:\\Code\\python-scripts\\CompilerTest.txt"
+filePath = "C:\\Users\\peque\\OneDrive\\Documents\\GitHub\\python-scripts\\test.sk"
+filePathRead = "C:\\Users\\peque\\OneDrive\\Documents\\GitHub\\python-scripts\\CompilerTest.txt"
 
 def writeToFile(information, filePath):
     f = open(filePath, "a")
@@ -21,22 +21,23 @@ variable2 + "}:"
         return ifStatement
 
 for line in open(filePathRead, "r"):
+    line = line.replace("    ", "*")
     read = line.split()
     if read[0] == "Literal":
         text = []
         for i in range((int(len(read))-1)):
-            text.append(read[i+1])
+            a = read[i + 1].replace("*", "    ")
+            text.append(a)
         writeToFile(" ".join(text), filePath)
-    elif read[0] == "create":
-        if read[1] == "if":
-            variable1 = read[2]
-            condition = read[3]
-            variable2type = read[4]
-            variable2 = read[5]
-            if variable2type == "literal":
-                sendToFile = constructIfStatement(1, variable1, condition, \
+    elif read[1] == "if":
+        variable1 = read[2]
+        condition = read[3]
+        variable2type = read[4]
+        variable2 = read[5]
+        if variable2type == "literal":
+            sendToFile = constructIfStatement(1, variable1, condition, \
 compareTo=variable2)
-            else:
-                sendToFile = constructIfStatement(2, variable1, condition, \
+        else:
+            sendToFile = constructIfStatement(2, variable1, condition, \
 variable2=variable2)
-            writeToFile(sendToFile, filePath)
+        writeToFile(sendToFile, filePath)

@@ -4,3 +4,6 @@ Utils/__pycache__/sqlite3CreateFile.cpython-310.pyc
 logfile.txt
 *.pyc
 Untitled-1.txt
+.gitignore
+podcast/config.json
+podcast/*

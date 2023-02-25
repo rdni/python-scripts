@@ -1,3 +1,2 @@
-import time
-from Utils import CLITestMain
-CLITestMain.startUp("Guest")
+import os
+print(os.path.abspath("testing.py"))

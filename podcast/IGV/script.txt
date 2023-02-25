@@ -1,0 +1,13 @@
+Show notes for the podcast:
+
+{
+  "content": "{\n  \"content\": \"In this episode,",
+  "role": "assistant"
+}
+
+Script for the podcast:
+
+{
+  "content": "Welcome to the newest episode of our bioinformatics and",
+  "role": "assistant"
+}

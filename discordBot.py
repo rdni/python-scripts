@@ -2,7 +2,6 @@ import interactions
 import math as m
 import time
 from fractions import Fraction
-from discord.ext import commands
 from interactions.utils.get import get
 
 
