@@ -62,7 +62,7 @@ class Camera(object):
         self.focalLength = 250
         self.screenCenter = [500, 500]
         self.screenSize = [1000, 1000]
-        self.position = [0, 1000, 2000]
+        self.position = [0, 0, 0]
         self.phi = 0 # Rotation around the y-axis
         self.theta = 0  # Rotation around the x-axis
     
