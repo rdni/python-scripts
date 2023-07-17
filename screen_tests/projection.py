@@ -188,12 +188,12 @@ class Vertex(object):
         self.position[0], self.position[1] = numpy.matmul(rotationMatrix, [self.originalPosition[0], self.originalPosition[1]])
         
 class Shape(object):
-    def __init__(self, vertices, edgeTable):
+    def __init__(self, vertices, edgeTable, position=[0, 0, 0]):
         self.vertices = vertices
         self.edgeTable = edgeTable
-        self.position = [0, 0, 0]
+        self.position = position
 
-vertices = [
+vertices1 = [
     Vertex(-100, -100, -100),
     Vertex(-100, -100, 100),
     Vertex(-100, 100, -100),
@@ -203,6 +203,18 @@ vertices = [
     Vertex(100, 100, -100),
     Vertex(100, 100, 100),
 ]
+
+vertices2 = [
+    Vertex(-200, -200, -200, shapePosition=[500, 0, 0, 1]),
+    Vertex(-200, -200, 200, shapePosition=[500, 0, 0, 1]),
+    Vertex(-200, 200, -200, shapePosition=[500, 0, 0, 1]),
+    Vertex(-200, 200, 200, shapePosition=[500, 0, 0, 1]),
+    Vertex(200, -200, -200, shapePosition=[500, 0, 0, 1]),
+    Vertex(200, -200, 200, shapePosition=[500, 0, 0, 1]),
+    Vertex(200, 200, -200, shapePosition=[500, 0, 0, 1]),
+    Vertex(200, 200, 200, shapePosition=[500, 0, 0, 1]),
+]
+
 
 edgeTable = [
     [0, 1],
@@ -229,7 +241,8 @@ edgeTable = [
 # ]
 
 state = State([
-    Shape(vertices, edgeTable),
+    Shape(vertices1, edgeTable),
+    Shape(vertices2, edgeTable, position=[500, 0, 0]),
     # Shape(yAxisLineVertices, yAxisLineEdgeTable)
 ])
 camera = state.camera
@@ -281,17 +294,19 @@ while True:
                     
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
-        camera.position[1] -= 1000 * deltaTime
+        camera.position[0] -= deltaTime * 1000 * numpy.sin(camera.phi) * numpy.cos(camera.theta)
+        camera.position[1] += deltaTime * 1000 * numpy.sin(camera.theta)
+        camera.position[2] += deltaTime * 1000 * numpy.cos(camera.phi) * numpy.cos(camera.theta)
     if keys[pygame.K_s]:
-        camera.position[1] += 1000 * deltaTime
+        camera.position[0] += deltaTime * 1000 * numpy.sin(camera.phi) * numpy.cos(camera.theta)
+        camera.position[1] -= deltaTime * 1000 * numpy.sin(camera.theta)
+        camera.position[2] -= deltaTime * 1000 * numpy.cos(camera.phi) * numpy.cos(camera.theta)
     if keys[pygame.K_a]:
-        camera.position[0] += 1000 * deltaTime
+        camera.position[0] -= deltaTime * 1000 * numpy.cos(camera.phi)
+        camera.position[2] -= deltaTime * 1000 * numpy.sin(camera.phi)
     if keys[pygame.K_d]:
-        camera.position[0] -= 1000 * deltaTime
-    if keys[pygame.K_q]:
-        camera.position[2] -= 1000 * deltaTime
-    if keys[pygame.K_e]:
-        camera.position[2] += 1000 * deltaTime
+        camera.position[0] += deltaTime * 1000 * numpy.cos(camera.phi)
+        camera.position[2] += deltaTime * 1000 * numpy.sin(camera.phi)
     if keys[pygame.K_UP]:
         camera.theta -= 1 * deltaTime
     if keys[pygame.K_DOWN]:
