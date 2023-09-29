@@ -30,30 +30,16 @@ class State(object):
         self.zOutput = TextBox(self.screen, 425, 900, 90, 50, fontSize=30)
         self.zSlider = Slider(self.screen, 300, 900, 100, 40, min=200, max=2000, step=10, defaultValue=1000)
         
-        self.phiOutput = TextBox(self.screen, 425, 950, 90, 50, fontSize=30)
-        self.phiSlider = Slider(self.screen, 300, 950, 100, 40, min=0, max=360, step=1, defaultValue=0)
-        
-        self.thetaOutput = TextBox(self.screen, 175, 900, 90, 50, fontSize=30)
-        self.thetaSlider = Slider(self.screen, 50, 900, 100, 40, min=1, max=10, step=1, defaultValue=0)
-        
-        self.xRotateOutput = TextBox(self.screen, 675, 800, 90, 50, fontSize=30)
-        self.xRotateSlider = Slider(self.screen, 550, 800, 100, 40, min=0, max=360, step=1, defaultValue=0)
-        
         self.positionOutput.setText(f"Position: {self.camera.position}")
         self.xOutput.setText(str(self.camera.position[0]))
         self.yOutput.setText(str(self.camera.position[1]))
         self.zOutput.setText(str(self.camera.position[2]))
-        self.phiOutput.setText(str(self.camera.phi))
-        self.thetaOutput.setText(str(self.camera.theta))
-        self.xRotateOutput.setText(str(0))
         
         self.positionOutput.disable()
         self.xOutput.disable()
         self.yOutput.disable()
         self.zOutput.disable()
-        self.phiOutput.disable()
-        self.thetaOutput.disable()
-        self.xRotateOutput.disable()
+
 
 class Camera(object):
     def __init__(self, shapes, screen) -> None:
@@ -76,6 +62,8 @@ class Camera(object):
             shape.screenCenter = self.screenCenter
             for edge in shape.edgeTable:
                 if not (a:=shape.vertices[edge[0]].project(self)) == (b:=shape.vertices[edge[1]].project(self)):
+                    a, b = self.positionClamp(a, b)
+                    b, a = self.positionClamp(b, a)
                     if a[0] < 0 and b[0] < 0:
                         continue
                     elif a[0] > self.screenSize[0] and b[0] > self.screenSize[0]:
@@ -107,12 +95,36 @@ class Camera(object):
                             pass
                 # else:
                 #     print(f"Line between {a} and {b} is too small to draw.")
+                
+    def positionClamp(self, pos1, pos2):
+        """Finds gradient of line, and finds where it meets the edge of the screen, and moves the point there while keeping the gradient."""
+        if pos1[0] == pos2[0]:
+            return pos1, pos2
+        elif pos1[1] == pos2[1]:
+            return pos1, pos2
+        elif pos1[0] < 0 and pos1[0] > self.screenSize[0] or pos1[1] < 0 and pos1[1] > self.screenSize[1]:
+            return pos1
+        else:
+            gradient = (pos2[1] - pos1[1]) / (pos2[0] - pos1[0])
+            if pos1[0] < 0:
+                pos1[0] = 0
+                pos1[1] = pos2[1] - (pos2[0] * gradient)
+            elif pos1[0] > self.screenSize[0]:
+                pos1[0] = self.screenSize[0]
+                pos1[1] = pos2[1] - ((pos2[0] - self.screenSize[0]) * gradient)
+            if pos1[1] < 0:
+                pos1[1] = 0
+                pos1[0] = pos2[0] - (pos2[1] / gradient)
+            elif pos1[1] > self.screenSize[1]:
+                pos1[1] = self.screenSize[1]
+                pos1[0] = pos2[0] - ((pos2[1] - self.screenSize[1]) / gradient)
+            return pos1, pos2
 
 class Vertex(object):
     def __init__(self, x, y, z, shapePosition=[0, 0, 0, 1]):
         self.relativePosition = [x, y, z, 1]
         self.shapePosition = shapePosition
-        self.originalPosition = [x, y, z, 1]
+        self.originalPosition = [x, y, z, 1]  
         self.cameraPosition = [0, 0, 0]
         self.cameraPhi = 0
         self.cameraTheta = 0
@@ -193,6 +205,17 @@ class Shape(object):
         self.edgeTable = edgeTable
         self.position = position
 
+
+def limit(value, min, max):
+    if value < min:
+        while value < min:
+            value += max - min
+    elif value > max:
+        while value > max:
+            value -= max - min
+    else:
+        return value
+
 vertices1 = [
     Vertex(-100, -100, -100),
     Vertex(-100, -100, 100),
@@ -252,14 +275,11 @@ ticks = 0
 prevXSliderVal = 0
 prevYSliderVal = 0
 prevZSliderVal = 0
-prevPhiSliderVal = 0
-prevThetaSliderVal = 0
-prevXRotateSliderVal = 0
 getTicksLastFrame = pygame.time.get_ticks()
 while True:
     start = time.time()
     t = pygame.time.get_ticks()
-# deltaTime in seconds.
+    # deltaTime in seconds.
     deltaTime = (t - getTicksLastFrame) / 1000.0
     getTicksLastFrame = t
     events = pygame.event.get()
@@ -293,14 +313,24 @@ while True:
         #             camera.position = [0, 1000, 2000]
                     
     keys = pygame.key.get_pressed()
+    forward_direction = numpy.array([
+        numpy.sin(camera.phi) * numpy.cos(camera.theta),
+        numpy.sin(camera.theta),
+        numpy.cos(camera.phi) * numpy.cos(camera.theta)
+    ])
+    right_direction = numpy.array([
+        numpy.cos(camera.phi),
+        0,
+        -numpy.sin(camera.phi)
+    ])
     if keys[pygame.K_w]:
-        camera.position[0] -= deltaTime * 1000 * numpy.sin(camera.phi) * numpy.cos(camera.theta)
-        camera.position[1] += deltaTime * 1000 * numpy.sin(camera.theta)
-        camera.position[2] += deltaTime * 1000 * numpy.cos(camera.phi) * numpy.cos(camera.theta)
-    if keys[pygame.K_s]:
         camera.position[0] += deltaTime * 1000 * numpy.sin(camera.phi) * numpy.cos(camera.theta)
         camera.position[1] -= deltaTime * 1000 * numpy.sin(camera.theta)
         camera.position[2] -= deltaTime * 1000 * numpy.cos(camera.phi) * numpy.cos(camera.theta)
+    if keys[pygame.K_s]:
+        camera.position[0] -= deltaTime * 1000 * numpy.sin(camera.phi) * numpy.cos(camera.theta)
+        camera.position[1] += deltaTime * 1000 * numpy.sin(camera.theta)
+        camera.position[2] += deltaTime * 1000 * numpy.cos(camera.phi) * numpy.cos(camera.theta)
     if keys[pygame.K_a]:
         camera.position[0] -= deltaTime * 1000 * numpy.cos(camera.phi)
         camera.position[2] -= deltaTime * 1000 * numpy.sin(camera.phi)
@@ -308,13 +338,24 @@ while True:
         camera.position[0] += deltaTime * 1000 * numpy.cos(camera.phi)
         camera.position[2] += deltaTime * 1000 * numpy.sin(camera.phi)
     if keys[pygame.K_UP]:
-        camera.theta -= 1 * deltaTime
+        if camera.theta - 1 * deltaTime < -numpy.pi/2:
+            camera.theta = -numpy.pi/2
+        else:
+            camera.theta -= 1 * deltaTime
     if keys[pygame.K_DOWN]:
-        camera.theta += 1 * deltaTime
+        if camera.theta + 1 * deltaTime > numpy.pi/2:
+            camera.theta = numpy.pi/2
+        else:
+            camera.theta += 1 * deltaTime
+        print(camera.theta)
     if keys[pygame.K_LEFT]:
         camera.phi += 1 * deltaTime
+        # camera.phi = limit(camera.phi, 0, numpy.radians(180))
+        print(camera.phi)
     if keys[pygame.K_RIGHT]:
         camera.phi -= 1 * deltaTime
+        # camera.phi = limit(camera.phi, 0, numpy.radians(180))
+        print(camera.phi)
     if keys[pygame.K_SPACE]:
         camera.position = [0, 1000, 2000]
         
@@ -342,33 +383,6 @@ while True:
             for vertex in shape.vertices:
                 vertex.cameraPosition[2] = camera.position[2]
     
-    if prevPhiSliderVal != state.phiSlider.getValue():
-        camera.phi = state.phiSlider.getValue()
-        prevPhiSliderVal = state.phiSlider.getValue()
-        state.phiOutput.setText(f"P: {str(camera.phi)}")
-        for shape in state.shapes:
-            for vertex in shape.vertices:
-                vertex.cameraPhi = camera.phi
-    
-    if prevThetaSliderVal != state.thetaSlider.getValue():
-        camera.theta = state.thetaSlider.getValue()
-        prevThetaSliderVal = state.thetaSlider.getValue()
-        state.thetaOutput.setText(f"T: {str(camera.theta)}")
-        for shape in state.shapes:
-            for vertex in shape.vertices:
-                vertex.cameraTheta = camera.theta
-    
-    if prevXRotateSliderVal != state.xRotateSlider.getValue():
-        xRotate = state.xRotateSlider.getValue()
-        prevXRotateSliderVal = state.xRotateSlider.getValue()
-        state.xRotateOutput.setText(f"XR: {str(xRotate)}")
-        for shape in state.shapes:
-            for vertex in shape.vertices:
-                vertex.xRotate(numpy.array([
-                    [numpy.cos(xRotate), -numpy.sin(xRotate)],
-                    [numpy.sin(xRotate), numpy.cos(xRotate)]
-                ]))
-    
     roundedPosition = [round(camera.position[0]), round(camera.position[1]), round(camera.position[2])]
     state.positionOutput.setText(f"Position: {roundedPosition}")
     
@@ -377,6 +391,6 @@ while True:
     pygame_widgets.update(events)
     pygame.display.update()
     
-    print(f"next frame: {ticks} took {(time.time() - start) * 1000} ms.")
+    # print(f"next frame: {ticks} took {(time.time() - start) * 1000} ms.")
     ticks += 1
     clock.tick(30)

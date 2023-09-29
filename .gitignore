@@ -7,3 +7,7 @@ Untitled-1.txt
 .gitignore
 podcast/config.json
 podcast/*
+*/dist/*
+*/build/*
+*.spec
+data.xml
