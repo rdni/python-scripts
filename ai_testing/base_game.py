@@ -15,13 +15,7 @@ class Player(object):
         elif direction == "down":
             self.position += self.speed
         elif direction == "logical":
-            # For tesing only
-            if self.position <= 150:
-                self.position += self.speed
-            elif self.position >= 150:
-                self.position -= self.speed
-            else:
-                self.position += self.speed
+           pass
         else:
             raise NotImplementedError
             
@@ -32,28 +26,40 @@ class Enemy(object):
     def __init__(self):
         self.position = 50
         self.score = 0
-        self.size = 10
+        self.size = 50
         self.speed = 5
     
-    def move(self, direction):
+    def move(self, direction, ball_position = None, ball_direction = None):
         if direction == "up":
             self.position -= self.speed
         elif direction == "down":
             self.position += self.speed
         elif direction == "logical":
-            if self.position < 150:
-                self.position += self.speed
-            elif self.position > 150:
-                self.position -= self.speed
+            if ball_position is None:
+                if self.position < 150:
+                    self.position += self.speed
+                elif self.position > 150:
+                    self.position -= self.speed
+            else:
+                if self.position < ball_position[1] and ball_direction[1] > 0:
+                    self.position += self.speed
+                elif self.position > ball_position[1] and ball_direction[1] > 0:
+                    self.position -= self.speed
+                elif self.position < ball_position[1] and ball_direction[1] < 0:
+                    self.position -= self.speed
+                elif self.position > ball_position[1] and ball_direction[1] < 0:
+                    self.position += self.speed
+                else:
+                    pass
         else:
             raise NotImplementedError
             
     def draw(self, screen):
-        pygame.draw.rect(screen, (255, 255, 255), (290, self.position, self.size, self.size))
+        pygame.draw.rect(screen, (255, 255, 255), (290, self.position, self.size / 5, self.size))
         
 class Ball(object):
     def __init__(self):
-        self.position = [150, 150]
+        self.position = [150, 100]
         self.size = 10
         self.speed = [5, 5]
     
@@ -92,9 +98,11 @@ class GameState(object):
         self.enemy = Enemy()
         self.ball = Ball()
         
+        self.enemy.position = self.ball.position[1]
+        
     def update(self):
         self.player.move("logical")
-        self.enemy.move("logical")
+        self.enemy.move("logical", ball_direction=self.ball.speed, ball_position=self.ball.position)
         self.ball.move()
         
         self.player.draw(self.screen)
