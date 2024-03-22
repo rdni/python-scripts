@@ -1,7 +1,8 @@
 import time
+from functools import lru_cache
 
+@lru_cache
 def fibbonachi(n):
-    print(n)
     if n == 0:
         return 0
     elif n == 1:
@@ -11,7 +12,7 @@ def fibbonachi(n):
 
 
 start = time.time()
-print(fibbonachi(10))
+print(fibbonachi(200))
 end = time.time() - start
 print(end)
 

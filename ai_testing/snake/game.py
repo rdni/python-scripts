@@ -3,6 +3,7 @@ import random
 from enum import Enum
 from collections import namedtuple
 import numpy as np
+import math
 
 pygame.init()
 font = pygame.font.Font('arial.ttf', 25)
@@ -24,13 +25,17 @@ BLUE2 = (0, 100, 255)
 BLACK = (0,0,0)
 
 BLOCK_SIZE = 20
-SPEED = 40
+SPEED = 1280
 
 class SnakeGameAI:
 
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
+        self.width = int(w / BLOCK_SIZE)
+        self.height = int(h / BLOCK_SIZE)
+        self.saved_state = None
+        self.checked = 0
         # init display
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('Snake')
@@ -51,6 +56,7 @@ class SnakeGameAI:
         self.food = None
         self._place_food()
         self.frame_iteration = 0
+        self.negative_reward = 0
 
 
     def _place_food(self):
@@ -68,16 +74,19 @@ class SnakeGameAI:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.negative_reward = 50
         
         # 2. move
         self._move(action) # update the head
         self.snake.insert(0, self.head)
         
         # 3. check if game over
-        reward = 0
+        reward = 0 - self.negative_reward
         game_over = False
         
-        if self.is_collision() or self.frame_iteration > 100*len(self.snake):
+        if self.is_collision() or self.frame_iteration > 100*len(self.snake) or self.negative_reward != 0:
             game_over = True
             reward = -10
             return reward, game_over, self.score
@@ -98,7 +107,7 @@ class SnakeGameAI:
         return reward, game_over, self.score
 
 
-    def is_collision(self, pt=None):
+    def is_collision(self, pt=None, extra_point=None):
         if pt is None:
             pt = self.head
         # hits boundary
@@ -107,7 +116,8 @@ class SnakeGameAI:
         # hits itself
         if pt in self.snake[1:]:
             return True
-
+        if pt == extra_point:
+            return True
         return False
 
 
@@ -120,7 +130,9 @@ class SnakeGameAI:
 
         pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
 
-        text = font.render("Score: " + str(self.score), True, WHITE)
+        state_text = str("".join(map(lambda x: "1" if x else "0", self.state())))
+
+        text = font.render(f"Score: {self.score} State: {state_text} FPS: {math.floor(self.clock.get_fps())}", True, WHITE)
         self.display.blit(text, [0, 0])
         pygame.display.flip()
 
@@ -154,3 +166,103 @@ class SnakeGameAI:
             y -= BLOCK_SIZE
 
         self.head = Point(x, y)
+        
+    def state(self):
+        if self.saved_state is not None:
+            if self.saved_state[1] == self.frame_iteration:
+                return self.saved_state[0]
+        
+        point_l = Point(self.head.x - 20, self.head.y)
+        point_r = Point(self.head.x + 20, self.head.y)
+        point_u = Point(self.head.x, self.head.y - 20)
+        point_d = Point(self.head.x, self.head.y + 20)
+        
+        dir_l = self.direction == Direction.LEFT
+        dir_r = self.direction == Direction.RIGHT
+        dir_u = self.direction == Direction.UP
+        dir_d = self.direction == Direction.DOWN
+        
+        state = [
+            # Danger straight
+            (dir_r and self.is_collision(point_r)) or 
+            (dir_l and self.is_collision(point_l)) or 
+            (dir_u and self.is_collision(point_u)) or 
+            (dir_d and self.is_collision(point_d)),
+
+            # Danger right
+            (dir_u and self.is_collision(point_r)) or 
+            (dir_d and self.is_collision(point_l)) or 
+            (dir_l and self.is_collision(point_u)) or 
+            (dir_r and self.is_collision(point_d)),
+
+            # Danger left
+            (dir_d and self.is_collision(point_r)) or 
+            (dir_u and self.is_collision(point_l)) or 
+            (dir_r and self.is_collision(point_u)) or 
+            (dir_l and self.is_collision(point_d)),
+            
+            # Enough space straight
+            (dir_r and not self.is_enough_free_space(point_r)) or 
+            (dir_l and not self.is_enough_free_space(point_l)) or 
+            (dir_u and not self.is_enough_free_space(point_u)) or 
+            (dir_d and not self.is_enough_free_space(point_d)),
+
+            # Enough spnot sce right
+            (dir_u and not self.is_enough_free_space(point_r)) or 
+            (dir_d and not self.is_enough_free_space(point_l)) or 
+            (dir_l and not self.is_enough_free_space(point_u)) or 
+            (dir_r and not self.is_enough_free_space(point_d)),
+
+            # Enough spnot sce left
+            (dir_d and not self.is_enough_free_space(point_r)) or 
+            (dir_u and not self.is_enough_free_space(point_l)) or 
+            (dir_r and not self.is_enough_free_space(point_u)) or 
+            (dir_l and not self.is_enough_free_space(point_d)),
+            
+            # Move direction
+            dir_l,
+            dir_r,
+            dir_u,
+            dir_d,
+            
+            # Food location 
+            self.food.x < self.head.x,  # food left
+            self.food.x > self.head.x,  # food right
+            self.food.y < self.head.y,  # food up
+            self.food.y > self.head.y  # food down
+        ]
+        
+        self.saved_state = (state, self.frame_iteration)
+        
+        return state
+    
+    def is_enough_free_space(self, point):
+        point = Point(point.x/BLOCK_SIZE, point.y/BLOCK_SIZE)
+        free_space = self.calculate_free_space(point.x, point.y)
+        # print(free_space)
+        if free_space == 0:
+            return True
+        return free_space > len(self.snake)
+    
+    def calculate_free_space(self, x, y):
+        visited = [[False] * self.width for _ in range(self.height)]
+        
+        return self.flood_fill(x, y, visited, Point(x, y))
+
+    def flood_fill(self, x, y, visited, extra_point):
+        if self.checked > len(self.snake):
+            return 0
+        
+        self.checked += 1
+        
+        x = int(x)
+        y = int(y)
+        if x>=self.width or y>=self.height:
+            return 0
+        if visited[y][x] or self.is_collision(pt=Point(x*BLOCK_SIZE, y*BLOCK_SIZE), extra_point=extra_point):
+            return 0
+        visited[y][x] = True
+        return (1 + self.flood_fill(x+1, y, visited, extra_point) 
+                + self.flood_fill(x-1, y, visited, extra_point) 
+                + self.flood_fill(x, y+1, visited, extra_point) 
+                + self.flood_fill(x, y-1, visited, extra_point))
